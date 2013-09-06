@@ -23,10 +23,12 @@ var _pointSeq = ['?', 0, .5, 1, 2, 3, 5, 8, 13, 21];
 //attributes representing points values for card
 var _pointsAttr = ['cpoints', 'points'];
 
+var _priority = [1, 2, 3];
 
 //internals
 var reg = /((?:^|\s))\((\x3f|\d*\.?\d+)(\))\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by ()
 	regC = /((?:^|\s))\[(\x3f|\d*\.?\d+)(\])\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by []
+	regPri = /P[\d]/m, // parse regexp- accepts P followed by a digit
 	iconUrl = chrome.extension.getURL('images/storypoints-icon.png'),
 	pointsDoneUrl = chrome.extension.getURL('images/points-done.png');
 
@@ -210,6 +212,7 @@ function ListCard(el, identifier){
 function showPointPicker() {
 	if($(this).find('.picker').length) return;
 	var $picker = $('<div class="picker">').appendTo('.card-detail-title .edit-controls');
+	$picker.append($('<span>Points:</span>'));
 	for (var i in _pointSeq) $picker.append($('<span class="point-value">').text(_pointSeq[i]).click(function(){
 		var value = $(this).text();
 		var $text = $('.card-detail-title .edit textarea');
@@ -217,6 +220,34 @@ function showPointPicker() {
 
 		// replace our new
 		$text[0].value=text.match(reg)?text.replace(reg, '('+value+') '):'('+value+') ' + text;
+
+		// then click our button so it all gets saved away
+		$(".card-detail-title .edit .js-save-edit").click();
+
+		return false
+	}))
+
+	// now show the priority picker
+	$picker.append($('<br/>'));
+	$picker.append($('<span>Priority:</span>'));
+	for (var p in _priority) $picker.append($('<span class="point-value">').text(_priority[p]).click(function(){
+		var value = $(this).text();
+		var $text = $('.card-detail-title .edit textarea');
+		var oldText = $text.val();
+		var newText = '';
+
+		var points = oldText.match(reg); // null if no points, else points[0] is the points string
+		if (points != null)
+		{
+			oldText = oldText.replace(reg, '');
+			newText += points[0];
+		}
+
+		oldText = oldText.replace(regPri, '');
+		newText += 'P' + value + ' ' + oldText;
+
+		// replace our new
+		$text[0].value=newText;
 
 		// then click our button so it all gets saved away
 		$(".card-detail-title .edit .js-save-edit").click();
@@ -290,4 +321,3 @@ function showExcelExport() {
 
 	return false
 };
-
