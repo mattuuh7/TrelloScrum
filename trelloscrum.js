@@ -200,7 +200,8 @@ function ListCard(el, identifier){
 		return parsed?points:''
 	});
 
-	if(!consumed) el.addEventListener('DOMNodeInserted',function(e){
+	//if(!consumed) 
+	el.addEventListener('DOMNodeInserted',function(e){
 		if(/card-short-id/.test(e.target.className) && !busy)
 			that.refresh();
 	});
@@ -227,6 +228,34 @@ function showPointPicker() {
 		return false
 	}))
 
+	// now show the consumed points picker
+	$picker.append($('<br/>'));
+	$picker.append($('<span>Consumed:</span>'));
+	for (var p in _pointSeq) $picker.append($('<span class="point-value">').text(_pointSeq[p]).click(function(){
+		var value = $(this).text();
+		var $text = $('.card-detail-title .edit textarea');
+		var oldText = $text.val();
+		var newText = '';
+
+		var points = oldText.match(reg); // null if no points, else points[0] is the points string
+		if (points != null)
+		{
+			oldText = oldText.replace(reg, '');
+			newText += points[0];
+		}
+
+		oldText = oldText.replace(regC, '');
+		newText += '[' + value + '] ' + oldText;
+
+		// replace our new
+		$text[0].value=newText;
+
+		// then click our button so it all gets saved away
+		$(".card-detail-title .edit .js-save-edit").click();
+
+		return false
+	}))
+
 	// now show the priority picker
 	$picker.append($('<br/>'));
 	$picker.append($('<span>Priority:</span>'));
@@ -241,6 +270,13 @@ function showPointPicker() {
 		{
 			oldText = oldText.replace(reg, '');
 			newText += points[0];
+		}
+
+		var consumedPoints = oldText.match(regC); // null if no consumed points, else consumedPoints[0] is the points string
+		if (consumedPoints != null)
+		{
+			oldText = oldText.replace(regC, '');
+			newText += consumedPoints[0];
 		}
 
 		oldText = oldText.replace(regPri, '');
