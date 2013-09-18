@@ -20,6 +20,19 @@
 
 //default story point picker sequence
 var _pointSeq = ['?', 0, .5, 1, 2, 3, 5, 8, 13, 21];
+//verbose explanation of weigh of points
+var _pointExplained = {
+	'?':'unkown',
+	'0':'no actions required',
+	'0.5':'minimal effort',
+	'1':'really quick',
+	'2':'part of a day',
+	'3':'full day',
+	'5':'one day with some spill over',
+	'8':'multiple days',
+	'13':'one week',
+	'21':'we should break into smaller tasks'
+};
 //attributes representing points values for card
 var _pointsAttr = ['cpoints', 'points'];
 
@@ -226,7 +239,7 @@ function showPointPicker() {
 		$(".card-detail-title .edit .js-save-edit").click();
 
 		return false
-	}))
+	}).attr('title', _pointExplained[_pointSeq[i]]))
 
 	// now show the consumed points picker
 	$picker.append($('<br/>'));
@@ -254,7 +267,7 @@ function showPointPicker() {
 		$(".card-detail-title .edit .js-save-edit").click();
 
 		return false
-	}))
+	}).attr('title', _pointExplained[_pointSeq[p]]))
 
 	// now show the priority picker
 	$picker.append($('<br/>'));
