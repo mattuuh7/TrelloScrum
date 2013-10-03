@@ -41,7 +41,7 @@ var _priority = [1, 2, 3];
 //internals
 var reg = /((?:^|\s))\((\x3f|\d*\.?\d+)(\))\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by ()
 	regC = /((?:^|\s))\[(\x3f|\d*\.?\d+)(\])\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by []
-	regPri = /P[\d]/m, // parse regexp- accepts P followed by a digit
+	regPri = /((?:^|\s))(P[\d])/m, // parse regexp- accepts P followed by a digit
 	iconUrl = chrome.extension.getURL('images/storypoints-icon.png'),
 	pointsDoneUrl = chrome.extension.getURL('images/points-done.png');
 
@@ -181,9 +181,12 @@ function ListCard(el, identifier){
 		clearTimeout(to);
 		to = setTimeout(function(){
 			var $title=$card.find('a.list-card-title');
+			var $cardId=$card.find('span.card-short-id');
 			if(!$title[0])return;
 			var title=$title[0].childNodes[1].textContent;
+			var cardId=$.trim($cardId[0].textContent).substring(1);
 			if(title) el._title = title;
+			el._cardId = cardId;
 			if(title!=ptitle) {
 				ptitle = title;
 				parsed=title.match(regexp);
@@ -199,7 +202,22 @@ function ListCard(el, identifier){
 
 				//only update title text and list totals once
 				if(!consumed) {
-					$title[0].childNodes[1].textContent = el._title = $.trim(el._title.replace(reg,'$1').replace(regC,'$1'));
+					var newTitle = $.trim(el._title.replace(reg,'$1').replace(regC,'$1'));
+
+					var priorityMatches = newTitle.match(regPri);
+					var priority = null;
+					if (priorityMatches && priorityMatches.length > 0)
+					{
+						priority = $.trim(priorityMatches[0]);
+					}
+
+					var newTitleNoPriority = $.trim(newTitle.replace(regPri,'$1'));
+					if (newTitleNoPriority.indexOf(el._cardId + ':') != 0 && newTitleNoPriority.indexOf(el._cardId + ' ') != 0)
+					{
+						newTitle = (priority ? priority + ' ' : '') + el._cardId + ':' + newTitleNoPriority;
+					}
+
+					$title[0].childNodes[1].textContent = el._title = newTitle;
 					var list = $card.closest('.list');
 					if(list[0]) list[0].list.calc();
 				}
