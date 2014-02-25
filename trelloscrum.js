@@ -642,7 +642,7 @@ function ListCard(el, identifier){
 				$badge
 					.text(that.points)
 					[(consumed?'add':'remove')+'Class']('consumed')
-					.attr({title: 'This card has '+that.points+ (consumed?' consumed':'')+' storypoint' + (that.points == 1 ? ': ' : 's: ') + _pointExplained[that.points]})
+					.attr({title: 'This card has '+that.points+ (consumed?' consumed':' estimated')+' storypoint' + (that.points == 1 ? ': ' : 's: ') + _pointExplained[that.points]})
 					.prependTo($card.find('.badges'));
 
 				// Update the DOM element's textContent and data if there were changes.
