@@ -74,6 +74,7 @@ refreshSettings(); // get the settings right away (may take a little bit if usin
 //internals
 var reg = /((?:^|\s))\((\x3f|\d*\.?\d+)(\))\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by ()
     regC = /((?:^|\s))\[(\x3f|\d*\.?\d+)(\])\s?/m, //parse regexp- accepts digits, decimals and '?', surrounded by []
+    regPri = /P[\d]/m, // parse regexp- accepts P followed by a digit
     iconUrl, pointsDoneUrl,
 	flameUrl, flame18Url,
 	scrumLogoUrl, scrumLogo18Url;
@@ -599,6 +600,7 @@ function ListCard(el, identifier){
 		parsed,
 		that=this,
 		busy=false,
+		ptitle='',
 		$card=$(el),
 		$badge=$('<div class="badge badge-points point-count" style="background-image: url('+iconUrl+')"/>'),
 		to,
@@ -615,6 +617,7 @@ function ListCard(el, identifier){
 		busy = true;
 		clearTimeout(to);
 		to = setTimeout(function(){
+			$card.find('a.list-card-title span.card-short-id').removeClass('hide');
 			var $title=$card.find('a.list-card-title');
 			if(!$title[0])return;
 			var titleTextContent = $title[0].childNodes[1].textContent;
@@ -703,7 +706,8 @@ function ListCard(el, identifier){
 function showPointPicker(location) {
 	if($(location).find('.picker').length) return;
 	var $picker = $('<div/>', {class: "picker"}).appendTo('.card-detail-title .edit-controls');
-	
+	$picker.append($('<span>Estimated:</span>'));
+
 	var estimateSequence = (S4T_SETTINGS[SETTING_NAME_ESTIMATES]).split(',');
 	for (var i in estimateSequence) $picker.append($('<span>', {class: "point-value"}).text(estimateSequence[i]).click(function(){
 		var value = $(this).text();
@@ -722,7 +726,7 @@ function showPointPicker(location) {
 	// now show the consumed points picker
 	$picker.append($('<br/>'));
 	$picker.append($('<span>Consumed:</span>'));
-	for (var p in _pointSeq) $picker.append($('<span class="point-value">').text(_pointSeq[p]).click(function(){
+	for (var p in _pointSeq) $picker.append($('<span>', {class: "point-value"}).text(_pointSeq[p]).click(function(){
 		var value = $(this).text();
 		var $text = $('.card-detail-title .edit textarea');
 		var oldText = $text.val();
@@ -750,7 +754,7 @@ function showPointPicker(location) {
 	// now show the priority picker
 	$picker.append($('<br/>'));
 	$picker.append($('<span>Priority:</span>'));
-	for (var p in _priority) $picker.append($('<span class="point-value">').text(_priority[p]).click(function(){
+	for (var p in _priority) $picker.append($('<span>', {class: "point-value"}).text(_priority[p]).click(function(){
 		var value = $(this).text();
 		var $text = $('.card-detail-title .edit textarea');
 		var oldText = $text.val();
